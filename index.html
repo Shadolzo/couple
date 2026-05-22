@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notre petit cocon 💗</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 <div class="background-blur blur-1"></div>
 <div class="background-blur blur-2"></div>
 
@@ -24,7 +33,7 @@
         </div>
 
         <div class="editor-card">
-            <label>🌼 Humeur du jour</label>
+            <label for="humeur">🌼 Humeur du jour</label>
             <textarea id="humeur" placeholder="Comment te sens-tu aujourd'hui ?"></textarea>
             <div class="editor-footer">
                 <span class="counter" id="count-humeur">0</span>
@@ -33,7 +42,7 @@
         </div>
 
         <div class="editor-card">
-            <label>🗨️ Discussions à avoir</label>
+            <label for="discussions">🗨️ Discussions à avoir</label>
             <textarea id="discussions" placeholder="Les choses importantes à se dire..."></textarea>
             <div class="editor-footer">
                 <span class="counter" id="count-discussions">0</span>
@@ -42,7 +51,7 @@
         </div>
 
         <div class="editor-card">
-            <label>📅 Nos prochains moments</label>
+            <label for="dates">📅 Nos prochains moments</label>
             <textarea id="dates" placeholder="Sorties, soirées, projets..."></textarea>
             <div class="editor-footer">
                 <span class="counter" id="count-dates">0</span>
@@ -60,23 +69,17 @@
 
         <div class="display-card">
             <div class="display-title">🌼 Humeur actuelle</div>
-            <div class="display-content" id="display-humeur">
-                Rien pour le moment...
-            </div>
+            <div class="display-content" id="display-humeur">Rien pour le moment...</div>
         </div>
 
         <div class="display-card">
             <div class="display-title">🗨️ Discussions</div>
-            <div class="display-content" id="display-discussions">
-                Rien pour le moment...
-            </div>
+            <div class="display-content" id="display-discussions">Rien pour le moment...</div>
         </div>
 
         <div class="display-card">
             <div class="display-title">📅 Nos prochains moments</div>
-            <div class="display-content" id="display-dates">
-                Rien pour le moment...
-            </div>
+            <div class="display-content" id="display-dates">Rien pour le moment...</div>
         </div>
     </section>
 
