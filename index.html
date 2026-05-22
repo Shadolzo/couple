@@ -1,111 +1,88 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Notre petit cocon 💗</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
+<div class="background-blur blur-1"></div>
+<div class="background-blur blur-2"></div>
 
-<body>
-
-<!-- Floating petals background -->
-<div class="petals-bg" aria-hidden="true">
-    <div class="petal" style="--i:1"></div>
-    <div class="petal" style="--i:2"></div>
-    <div class="petal" style="--i:3"></div>
-    <div class="petal" style="--i:4"></div>
-    <div class="petal" style="--i:5"></div>
-    <div class="petal" style="--i:6"></div>
-    <div class="petal" style="--i:7"></div>
-    <div class="petal" style="--i:8"></div>
-</div>
-
-<header>
-    <div class="header-glow"></div>
-    <div class="header-inner">
-        <div class="heart-icon">💗</div>
+<header class="hero">
+    <div class="hero-content">
+        <div class="hero-heart">💗</div>
         <h1>Notre petit cocon</h1>
-        <p class="subtitle">Un espace rien qu'à nous deux</p>
-        <div class="header-dots">
-            <span></span><span></span><span></span>
+        <p>Un espace partagé synchronisé en temps réel</p>
+
+        <div class="sync-status" id="sync-status">
+            🔄 Synchronisation...
         </div>
     </div>
 </header>
 
-<main>
+<main class="layout">
 
-    <section class="card" style="--delay: 0.1s">
-        <div class="card-accent"></div>
-        <div class="card-header">
-            <span class="card-emoji">🌼</span>
-            <div>
-                <h2>Humeur du jour</h2>
-                <p class="card-desc">Comment te sens-tu en ce moment ?</p>
+    <!-- Zone édition -->
+    <section class="panel editor-panel">
+        <div class="panel-title-row">
+            <h2>✍️ Écrire</h2>
+            <span class="panel-subtitle">Ajouter ou modifier nos informations</span>
+        </div>
+
+        <div class="editor-card">
+            <label>🌼 Humeur du jour</label>
+            <textarea id="humeur" placeholder="Comment te sens-tu aujourd'hui ?"></textarea>
+            <div class="editor-footer">
+                <span class="counter" id="count-humeur">0</span>
+                <button onclick="saveField('humeur')" id="btn-humeur">Sauvegarder</button>
             </div>
         </div>
-        <div class="textarea-wrap">
-            <textarea id="humeur" placeholder="Écris ton humeur ici… heureuse, fatiguée, câline ?"></textarea>
-            <span class="char-count" id="count-humeur">0</span>
+
+        <div class="editor-card">
+            <label>🗨️ Discussions à avoir</label>
+            <textarea id="discussions" placeholder="Les choses importantes à se dire..."></textarea>
+            <div class="editor-footer">
+                <span class="counter" id="count-discussions">0</span>
+                <button onclick="saveField('discussions')" id="btn-discussions">Sauvegarder</button>
+            </div>
         </div>
-        <button onclick="save('humeur')" class="save-btn" id="btn-humeur">
-            <span class="btn-text">Sauvegarder</span>
-            <span class="btn-icon">✦</span>
-        </button>
+
+        <div class="editor-card">
+            <label>📅 Nos prochains moments</label>
+            <textarea id="dates" placeholder="Sorties, soirées, projets..."></textarea>
+            <div class="editor-footer">
+                <span class="counter" id="count-dates">0</span>
+                <button onclick="saveField('dates')" id="btn-dates">Sauvegarder</button>
+            </div>
+        </div>
     </section>
 
-    <section class="card" style="--delay: 0.25s">
-        <div class="card-accent" style="--accent-hue: 330deg"></div>
-        <div class="card-header">
-            <span class="card-emoji">🗨️</span>
-            <div>
-                <h2>Discussions à avoir</h2>
-                <p class="card-desc">Les sujets qu'on ne veut pas oublier</p>
-            </div>
+    <!-- Zone affichage -->
+    <section class="panel display-panel">
+        <div class="panel-title-row">
+            <h2>💖 Espace partagé</h2>
+            <span class="panel-subtitle">Visible par toutes les personnes ayant le lien</span>
         </div>
-        <div class="textarea-wrap">
-            <textarea id="discussions" placeholder="Les petites ou grandes choses à se dire…"></textarea>
-            <span class="char-count" id="count-discussions">0</span>
-        </div>
-        <button onclick="save('discussions')" class="save-btn" id="btn-discussions">
-            <span class="btn-text">Sauvegarder</span>
-            <span class="btn-icon">✦</span>
-        </button>
-    </section>
 
-    <section class="card" style="--delay: 0.4s">
-        <div class="card-accent" style="--accent-hue: 350deg"></div>
-        <div class="card-header">
-            <span class="card-emoji">📅</span>
-            <div>
-                <h2>Nos prochains dates</h2>
-                <p class="card-desc">Les moments à anticiper ensemble</p>
+        <div class="display-card">
+            <div class="display-title">🌼 Humeur actuelle</div>
+            <div class="display-content" id="display-humeur">
+                Rien pour le moment...
             </div>
         </div>
-        <div class="textarea-wrap">
-            <textarea id="dates" placeholder="Idées de sorties, soirées, aventures…"></textarea>
-            <span class="char-count" id="count-dates">0</span>
+
+        <div class="display-card">
+            <div class="display-title">🗨️ Discussions</div>
+            <div class="display-content" id="display-discussions">
+                Rien pour le moment...
+            </div>
         </div>
-        <button onclick="save('dates')" class="save-btn" id="btn-dates">
-            <span class="btn-text">Sauvegarder</span>
-            <span class="btn-icon">✦</span>
-        </button>
+
+        <div class="display-card">
+            <div class="display-title">📅 Nos prochains moments</div>
+            <div class="display-content" id="display-dates">
+                Rien pour le moment...
+            </div>
+        </div>
     </section>
 
 </main>
 
-<footer>
-    <p>Fait avec amour 💕</p>
-</footer>
-
-<!-- Toast notification -->
-<div class="toast" id="toast">
-    <span class="toast-icon">💖</span>
-    <span class="toast-msg">Sauvegardé avec amour !</span>
-</div>
+<div class="toast" id="toast"></div>
 
 <script type="module" src="script.js"></script>
 </body>
