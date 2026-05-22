@@ -3,41 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Notre petit cocon</title>
+    <title>Notre petit cocon 💗</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<!-- Floating petals background -->
+<div class="petals-bg" aria-hidden="true">
+    <div class="petal" style="--i:1"></div>
+    <div class="petal" style="--i:2"></div>
+    <div class="petal" style="--i:3"></div>
+    <div class="petal" style="--i:4"></div>
+    <div class="petal" style="--i:5"></div>
+    <div class="petal" style="--i:6"></div>
+    <div class="petal" style="--i:7"></div>
+    <div class="petal" style="--i:8"></div>
+</div>
+
 <header>
-    <h1>💗 Notre petit cocon 💗</h1>
-    <p>Un endroit rien qu’à nous deux</p>
+    <div class="header-glow"></div>
+    <div class="header-inner">
+        <div class="heart-icon">💗</div>
+        <h1>Notre petit cocon</h1>
+        <p class="subtitle">Un espace rien qu'à nous deux</p>
+        <div class="header-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
 </header>
 
 <main>
 
-    <section class="card">
-        <h2>🌼 Humeur du jour</h2>
-        <textarea id="humeur" placeholder="Écris ton humeur ici..."></textarea>
-        <button onclick="save('humeur')">Sauvegarder</button>
+    <section class="card" style="--delay: 0.1s">
+        <div class="card-accent"></div>
+        <div class="card-header">
+            <span class="card-emoji">🌼</span>
+            <div>
+                <h2>Humeur du jour</h2>
+                <p class="card-desc">Comment te sens-tu en ce moment ?</p>
+            </div>
+        </div>
+        <div class="textarea-wrap">
+            <textarea id="humeur" placeholder="Écris ton humeur ici… heureuse, fatiguée, câline ?"></textarea>
+            <span class="char-count" id="count-humeur">0</span>
+        </div>
+        <button onclick="save('humeur')" class="save-btn" id="btn-humeur">
+            <span class="btn-text">Sauvegarder</span>
+            <span class="btn-icon">✦</span>
+        </button>
     </section>
 
-    <section class="card">
-        <h2>🗨️ Discussions à avoir</h2>
-        <textarea id="discussions" placeholder="Les sujets dont on doit parler..."></textarea>
-        <button onclick="save('discussions')">Sauvegarder</button>
+    <section class="card" style="--delay: 0.25s">
+        <div class="card-accent" style="--accent-hue: 330deg"></div>
+        <div class="card-header">
+            <span class="card-emoji">🗨️</span>
+            <div>
+                <h2>Discussions à avoir</h2>
+                <p class="card-desc">Les sujets qu'on ne veut pas oublier</p>
+            </div>
+        </div>
+        <div class="textarea-wrap">
+            <textarea id="discussions" placeholder="Les petites ou grandes choses à se dire…"></textarea>
+            <span class="char-count" id="count-discussions">0</span>
+        </div>
+        <button onclick="save('discussions')" class="save-btn" id="btn-discussions">
+            <span class="btn-text">Sauvegarder</span>
+            <span class="btn-icon">✦</span>
+        </button>
     </section>
 
-    <section class="card">
-        <h2>📅 Nos prochains dates</h2>
-        <textarea id="dates" placeholder="Les idées de sorties, les dates prévues..."></textarea>
-        <button onclick="save('dates')">Sauvegarder</button>
+    <section class="card" style="--delay: 0.4s">
+        <div class="card-accent" style="--accent-hue: 350deg"></div>
+        <div class="card-header">
+            <span class="card-emoji">📅</span>
+            <div>
+                <h2>Nos prochains dates</h2>
+                <p class="card-desc">Les moments à anticiper ensemble</p>
+            </div>
+        </div>
+        <div class="textarea-wrap">
+            <textarea id="dates" placeholder="Idées de sorties, soirées, aventures…"></textarea>
+            <span class="char-count" id="count-dates">0</span>
+        </div>
+        <button onclick="save('dates')" class="save-btn" id="btn-dates">
+            <span class="btn-text">Sauvegarder</span>
+            <span class="btn-icon">✦</span>
+        </button>
     </section>
 
 </main>
 
-<!-- Firebase + Script -->
-<script type="module" src="script.js"></script>
+<footer>
+    <p>Fait avec amour 💕</p>
+</footer>
 
+<!-- Toast notification -->
+<div class="toast" id="toast">
+    <span class="toast-icon">💖</span>
+    <span class="toast-msg">Sauvegardé avec amour !</span>
+</div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
