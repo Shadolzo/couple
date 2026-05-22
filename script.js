@@ -20,45 +20,26 @@ const firebaseConfig = {
 // ===== INITIALISATION =====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// ===== DOCUMENT PARTAGÉ =====
 const sharedDoc = doc(db, "shared_space", "main_data");
-
 const fields = ["humeur", "discussions", "dates"];
 
 // ===== ÉLÉMENTS =====
 const syncStatus = document.getElementById("sync-status");
 const toast = document.getElementById("toast");
 
-// ===== COMPTEURS DE CARACTÈRES =====
-fields.forEach((field) => {
-    const textarea = document.getElementById(field);
-    const counter = document.getElementById(`count-${field}`);
-
-    if (textarea && counter) {
-        textarea.addEventListener("input", () => {
-            counter.textContent = textarea.value.length;
-        });
-    }
-});
-
 // ===== TOAST =====
 let toastTimer = null;
 function showToast(message) {
     toast.textContent = message;
     toast.classList.add("show");
-
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2500);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
-// ===== MISE À JOUR DE L'AFFICHAGE =====
+// ===== AFFICHAGE =====
 function updateDisplay(field, value) {
     const displayEl = document.getElementById(`display-${field}`);
     if (!displayEl) return;
-
     if (!value || value.trim() === "") {
         displayEl.textContent = "Rien pour le moment...";
         displayEl.classList.add("empty");
@@ -68,57 +49,11 @@ function updateDisplay(field, value) {
     }
 }
 
-// ===== SAUVEGARDE =====
-window.saveField = async function(field) {
-    const textarea = document.getElementById(field);
-    const button = document.getElementById(`btn-${field}`);
-
-    if (!textarea || !button) return;
-
-    const value = textarea.value.trim();
-
-    button.disabled = true;
-    button.classList.add("saved");
-    button.textContent = "Sauvegardé ✓";
-
-    try {
-        await setDoc(
-            sharedDoc,
-            {
-                [field]: value,
-                updatedAt: serverTimestamp()
-            },
-            { merge: true }
-        );
-
-        // Mise à jour immédiate de l'affichage
-        updateDisplay(field, value);
-        showToast("💖 Synchronisé avec succès");
-
-    } catch (error) {
-        console.error("Erreur Firebase :", error);
-        showToast("❌ Erreur de connexion Firebase");
-
-        button.disabled = false;
-        button.classList.remove("saved");
-        button.textContent = "Sauvegarder";
-        return;
-    }
-
-    setTimeout(() => {
-        button.disabled = false;
-        button.classList.remove("saved");
-        button.textContent = "Sauvegarder";
-    }, 1500);
-};
-
-// ===== SYNCHRONISATION TEMPS RÉEL =====
+// ===== ÉCOUTE TEMPS RÉEL — au chargement ET à chaque changement depuis l'autre appareil =====
 onSnapshot(sharedDoc, (snapshot) => {
-
     syncStatus.textContent = "🟢 Synchronisé en temps réel";
 
     if (!snapshot.exists()) {
-        // Document vide : tout réinitialiser
         fields.forEach((field) => updateDisplay(field, ""));
         return;
     }
@@ -127,25 +62,93 @@ onSnapshot(sharedDoc, (snapshot) => {
 
     fields.forEach((field) => {
         const textarea = document.getElementById(field);
-        const counter = document.getElementById(`count-${field}`);
+        const counter  = document.getElementById(`count-${field}`);
+        const value    = data[field] ?? "";
 
-        // Mise à jour du textarea uniquement si la valeur a changé
-        // (pour ne pas écraser ce que l'utilisateur est en train de taper)
-        if (textarea && data[field] !== undefined) {
-            if (document.activeElement !== textarea) {
-                textarea.value = data[field];
-            }
-            if (counter) {
-                counter.textContent = textarea.value.length;
-            }
+        // Ne pas écraser ce que l'utilisateur est en train de taper
+        if (textarea && document.activeElement !== textarea) {
+            textarea.value = value;
+            if (counter) counter.textContent = value.length;
         }
 
-        // Toujours mettre à jour la zone d'affichage
-        updateDisplay(field, data[field] ?? "");
+        updateDisplay(field, value);
     });
 
 }, (error) => {
-    console.error("Erreur snapshot :", error);
+    // ⚠️ Erreur la plus fréquente : règles Firestore trop restrictives
+    console.error("Erreur Firestore :", error.code, error.message);
     syncStatus.textContent = "🔴 Hors ligne";
-    showToast("⚠️ Connexion perdue");
+
+    if (error.code === "permission-denied") {
+        showToast("🔒 Accès refusé — vérifie les règles Firestore");
+        syncStatus.textContent = "🔒 Règles Firestore bloquantes";
+    } else {
+        showToast("⚠️ Connexion perdue : " + error.code);
+    }
 });
+
+// ===== SAISIE : affichage instantané + auto-save après 1,5s d'inactivité =====
+const autoSaveTimers = {};
+
+fields.forEach((field) => {
+    const textarea = document.getElementById(field);
+    const counter  = document.getElementById(`count-${field}`);
+
+    if (!textarea) return;
+
+    textarea.addEventListener("input", () => {
+        // Compteur et affichage instantané
+        if (counter) counter.textContent = textarea.value.length;
+        updateDisplay(field, textarea.value);
+
+        // Auto-save déboncé (1,5s après la dernière frappe)
+        clearTimeout(autoSaveTimers[field]);
+        autoSaveTimers[field] = setTimeout(() => saveToFirebase(field), 1500);
+    });
+});
+
+// ===== SAUVEGARDE FIREBASE =====
+async function saveToFirebase(field) {
+    const textarea = document.getElementById(field);
+    const button   = document.getElementById(`btn-${field}`);
+    if (!textarea) return;
+
+    const value = textarea.value.trim();
+
+    if (button) {
+        button.disabled = true;
+        button.classList.add("saved");
+        button.textContent = "Sauvegardé ✓";
+    }
+
+    try {
+        await setDoc(
+            sharedDoc,
+            { [field]: value, updatedAt: serverTimestamp() },
+            { merge: true }
+        );
+        showToast("💖 Synchronisé avec succès");
+    } catch (error) {
+        console.error("Erreur écriture Firebase :", error.code, error.message);
+
+        if (error.code === "permission-denied") {
+            showToast("🔒 Écriture refusée — vérifie les règles Firestore");
+        } else {
+            showToast("❌ Erreur : " + error.code);
+        }
+    }
+
+    setTimeout(() => {
+        if (button) {
+            button.disabled = false;
+            button.classList.remove("saved");
+            button.textContent = "Sauvegarder";
+        }
+    }, 1500);
+}
+
+// Bouton manuel : annule l'auto-save en cours et sauvegarde immédiatement
+window.saveField = function(field) {
+    clearTimeout(autoSaveTimers[field]);
+    saveToFirebase(field);
+};
