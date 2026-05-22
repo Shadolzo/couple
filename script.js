@@ -7,7 +7,7 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ===== CONFIG FIREBASE =====
+// CONFIG FIREBASE
 const firebaseConfig = {
     apiKey: "AIzaSyBRgdkK4GebTOizF7O3OGaOaPJLYyu1UVA",
     authDomain: "couple-768a9.firebaseapp.com",
@@ -17,109 +17,66 @@ const firebaseConfig = {
     appId: "1:806640890987:web:ebdb42cc601e95e477ad2e"
 };
 
-// ===== INITIALISATION =====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const sharedDoc = doc(db, "shared_space", "main_data");
-const fields = ["humeur", "discussions", "dates"];
 
-// ===== ÉLÉMENTS =====
+// Champs texte classiques (textarea)
+const textFields = ["discussions", "dates"];
+// Tous les champs (y compris humeur)
+const allFields = ["humeur", "discussions", "dates"];
+
 const syncStatus = document.getElementById("sync-status");
 const toast = document.getElementById("toast");
 
-// ===== TOAST =====
-let toastTimer = null;
+// --- COMPTEURS pour les textareas ---
+textFields.forEach((field) => {
+    const textarea = document.getElementById(field);
+    const counter = document.getElementById(`count-${field}`);
+    if (textarea && counter) {
+        textarea.addEventListener("input", () => {
+            counter.textContent = textarea.value.length;
+        });
+    }
+});
+
+// --- SÉLECTEUR D'HUMEUR ---
+window.selectMood = function(btn) {
+    // Désélectionner les autres
+    document.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // Mettre à jour le champ caché
+    const mood = btn.dataset.mood;
+    document.getElementById("humeur").value = mood;
+
+    // Mettre à jour le label
+    const label = document.getElementById("mood-label");
+    if (label) label.textContent = `Sélectionné : ${mood}`;
+};
+
+// --- TOAST ---
 function showToast(message) {
     toast.textContent = message;
     toast.classList.add("show");
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+    setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-// ===== AFFICHAGE =====
-function updateDisplay(field, value) {
-    const displayEl = document.getElementById(`display-${field}`);
-    if (!displayEl) return;
-    if (!value || value.trim() === "") {
-        displayEl.textContent = "Rien pour le moment...";
-        displayEl.classList.add("empty");
-    } else {
-        displayEl.textContent = value;
-        displayEl.classList.remove("empty");
-    }
-}
+// --- SAUVEGARDE ---
+window.saveField = async function(field) {
+    const input = document.getElementById(field);
+    const button = document.getElementById(`btn-${field}`);
+    if (!input || !button) return;
 
-// ===== ÉCOUTE TEMPS RÉEL — au chargement ET à chaque changement depuis l'autre appareil =====
-onSnapshot(sharedDoc, (snapshot) => {
-    syncStatus.textContent = "🟢 Synchronisé en temps réel";
-
-    if (!snapshot.exists()) {
-        fields.forEach((field) => updateDisplay(field, ""));
+    const value = input.value.trim();
+    if (!value) {
+        showToast("⚠️ Rien à sauvegarder");
         return;
     }
 
-    const data = snapshot.data();
-
-    fields.forEach((field) => {
-        const textarea = document.getElementById(field);
-        const counter  = document.getElementById(`count-${field}`);
-        const value    = data[field] ?? "";
-
-        // Ne pas écraser ce que l'utilisateur est en train de taper
-        if (textarea && document.activeElement !== textarea) {
-            textarea.value = value;
-            if (counter) counter.textContent = value.length;
-        }
-
-        updateDisplay(field, value);
-    });
-
-}, (error) => {
-    // ⚠️ Erreur la plus fréquente : règles Firestore trop restrictives
-    console.error("Erreur Firestore :", error.code, error.message);
-    syncStatus.textContent = "🔴 Hors ligne";
-
-    if (error.code === "permission-denied") {
-        showToast("🔒 Accès refusé — vérifie les règles Firestore");
-        syncStatus.textContent = "🔒 Règles Firestore bloquantes";
-    } else {
-        showToast("⚠️ Connexion perdue : " + error.code);
-    }
-});
-
-// ===== SAISIE : affichage instantané + auto-save après 1,5s d'inactivité =====
-const autoSaveTimers = {};
-
-fields.forEach((field) => {
-    const textarea = document.getElementById(field);
-    const counter  = document.getElementById(`count-${field}`);
-
-    if (!textarea) return;
-
-    textarea.addEventListener("input", () => {
-        // Compteur et affichage instantané
-        if (counter) counter.textContent = textarea.value.length;
-        updateDisplay(field, textarea.value);
-
-        // Auto-save déboncé (1,5s après la dernière frappe)
-        clearTimeout(autoSaveTimers[field]);
-        autoSaveTimers[field] = setTimeout(() => saveToFirebase(field), 1500);
-    });
-});
-
-// ===== SAUVEGARDE FIREBASE =====
-async function saveToFirebase(field) {
-    const textarea = document.getElementById(field);
-    const button   = document.getElementById(`btn-${field}`);
-    if (!textarea) return;
-
-    const value = textarea.value.trim();
-
-    if (button) {
-        button.disabled = true;
-        button.classList.add("saved");
-        button.textContent = "Sauvegardé ✓";
-    }
+    button.disabled = true;
+    button.classList.add("saved");
+    button.textContent = "Sauvegardé ✓";
 
     try {
         await setDoc(
@@ -129,26 +86,59 @@ async function saveToFirebase(field) {
         );
         showToast("💖 Synchronisé avec succès");
     } catch (error) {
-        console.error("Erreur écriture Firebase :", error.code, error.message);
-
-        if (error.code === "permission-denied") {
-            showToast("🔒 Écriture refusée — vérifie les règles Firestore");
-        } else {
-            showToast("❌ Erreur : " + error.code);
-        }
+        console.error(error);
+        showToast("❌ Erreur Firebase");
     }
 
     setTimeout(() => {
-        if (button) {
-            button.disabled = false;
-            button.classList.remove("saved");
-            button.textContent = "Sauvegarder";
-        }
+        button.disabled = false;
+        button.classList.remove("saved");
+        button.textContent = "Sauvegarder";
     }, 1500);
-}
-
-// Bouton manuel : annule l'auto-save en cours et sauvegarde immédiatement
-window.saveField = function(field) {
-    clearTimeout(autoSaveTimers[field]);
-    saveToFirebase(field);
 };
+
+// --- SYNCHRONISATION TEMPS RÉEL ---
+// FIX : on met à jour AUSSI les zones d'affichage (display-*)
+onSnapshot(sharedDoc, (snapshot) => {
+    syncStatus.textContent = "🟢 Synchronisé en temps réel";
+
+    if (!snapshot.exists()) return;
+
+    const data = snapshot.data();
+
+    allFields.forEach((field) => {
+        // Zone d'affichage → toujours mise à jour
+        const display = document.getElementById(`display-${field}`);
+        if (display) {
+            display.textContent = data[field] || "Rien pour le moment...";
+        }
+
+        if (field === "humeur") {
+            // Mettre à jour le champ caché
+            const input = document.getElementById("humeur");
+            if (input) input.value = data[field] || "";
+
+            // Resélectionner le bon bouton
+            const label = document.getElementById("mood-label");
+            document.querySelectorAll(".mood-btn").forEach(btn => {
+                btn.classList.remove("active");
+                if (data[field] && btn.dataset.mood === data[field]) {
+                    btn.classList.add("active");
+                    if (label) label.textContent = `Sélectionné : ${data[field]}`;
+                }
+            });
+        } else {
+            // Textarea classique
+            const textarea = document.getElementById(field);
+            const counter = document.getElementById(`count-${field}`);
+            if (textarea && data[field] !== undefined) {
+                textarea.value = data[field];
+                if (counter) counter.textContent = data[field].length;
+            }
+        }
+    });
+
+}, (error) => {
+    console.error(error);
+    syncStatus.textContent = "🔴 Hors ligne";
+});

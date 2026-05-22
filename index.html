@@ -16,10 +16,7 @@
         <div class="hero-heart">💗</div>
         <h1>Notre petit cocon</h1>
         <p>Un espace partagé synchronisé en temps réel</p>
-
-        <div class="sync-status" id="sync-status">
-            🔄 Synchronisation...
-        </div>
+        <div class="sync-status" id="sync-status">🔄 Synchronisation...</div>
     </div>
 </header>
 
@@ -32,17 +29,31 @@
             <span class="panel-subtitle">Ajouter ou modifier nos informations</span>
         </div>
 
+        <!-- HUMEUR : sélecteur émojis -->
         <div class="editor-card">
-            <label for="humeur">🌼 Humeur du jour</label>
-            <textarea id="humeur" placeholder="Comment te sens-tu aujourd'hui ?"></textarea>
-            <div class="editor-footer">
-                <span class="counter" id="count-humeur">0</span>
+            <label>🌼 Humeur du jour</label>
+            <div class="mood-grid" id="mood-grid">
+                <button class="mood-btn" data-mood="😊 Bien" onclick="selectMood(this)">😊<span>Bien</span></button>
+                <button class="mood-btn" data-mood="😄 Super" onclick="selectMood(this)">😄<span>Super</span></button>
+                <button class="mood-btn" data-mood="🥰 Amoureux·se" onclick="selectMood(this)">🥰<span>Amoureux·se</span></button>
+                <button class="mood-btn" data-mood="😌 Serein·e" onclick="selectMood(this)">😌<span>Serein·e</span></button>
+                <button class="mood-btn" data-mood="😴 Fatigué·e" onclick="selectMood(this)">😴<span>Fatigué·e</span></button>
+                <button class="mood-btn" data-mood="😔 Triste" onclick="selectMood(this)">😔<span>Triste</span></button>
+                <button class="mood-btn" data-mood="😰 Stressé·e" onclick="selectMood(this)">😰<span>Stressé·e</span></button>
+                <button class="mood-btn" data-mood="😤 Frustré·e" onclick="selectMood(this)">😤<span>Frustré·e</span></button>
+                <button class="mood-btn" data-mood="🤒 Pas bien" onclick="selectMood(this)">🤒<span>Pas bien</span></button>
+                <button class="mood-btn" data-mood="🤩 Excité·e" onclick="selectMood(this)">🤩<span>Excité·e</span></button>
+            </div>
+            <!-- champ caché utilisé par saveField -->
+            <input type="hidden" id="humeur" value="">
+            <div class="editor-footer mood-footer">
+                <span class="mood-selected-label" id="mood-label">Aucune humeur sélectionnée</span>
                 <button onclick="saveField('humeur')" id="btn-humeur">Sauvegarder</button>
             </div>
         </div>
 
         <div class="editor-card">
-            <label for="discussions">🗨️ Discussions à avoir</label>
+            <label>🗨️ Discussions à avoir</label>
             <textarea id="discussions" placeholder="Les choses importantes à se dire..."></textarea>
             <div class="editor-footer">
                 <span class="counter" id="count-discussions">0</span>
@@ -51,7 +62,7 @@
         </div>
 
         <div class="editor-card">
-            <label for="dates">📅 Nos prochains moments</label>
+            <label>📅 Nos prochains moments</label>
             <textarea id="dates" placeholder="Sorties, soirées, projets..."></textarea>
             <div class="editor-footer">
                 <span class="counter" id="count-dates">0</span>
@@ -69,7 +80,7 @@
 
         <div class="display-card">
             <div class="display-title">🌼 Humeur actuelle</div>
-            <div class="display-content" id="display-humeur">Rien pour le moment...</div>
+            <div class="display-content display-mood" id="display-humeur">Rien pour le moment...</div>
         </div>
 
         <div class="display-card">
