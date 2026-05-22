@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notre petit cocon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>💗 Notre petit cocon 💗</h1>
+    <p>Un endroit rien qu’à nous deux</p>
+</header>
+
+<main>
+
+    <section class="card">
+        <h2>🌼 Humeur du jour</h2>
+        <textarea id="humeur" placeholder="Écris ton humeur ici..."></textarea>
+        <button onclick="save('humeur')">Sauvegarder</button>
+    </section>
+
+    <section class="card">
+        <h2>🗨️ Discussions à avoir</h2>
+        <textarea id="discussions" placeholder="Les sujets dont on doit parler..."></textarea>
+        <button onclick="save('discussions')">Sauvegarder</button>
+    </section>
+
+    <section class="card">
+        <h2>📅 Nos prochains dates</h2>
+        <textarea id="dates" placeholder="Les idées de sorties, les dates prévues..."></textarea>
+        <button onclick="save('dates')">Sauvegarder</button>
+    </section>
+
+</main>
+
+<!-- Firebase + Script -->
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
